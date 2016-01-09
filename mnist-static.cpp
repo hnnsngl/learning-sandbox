@@ -262,7 +262,7 @@ double sqrsum(const Mat &src)
 	const double *x = src.ptr<double>(0);
 	cv::Size size = src.size();
 	double sum = 0;
-#pragma parallel for reduce(+ : sum)
+#pragma omp  parallel for reduction(+:sum)
 	for (int i = 0; i < size.width * size.height; i++) {
 		sum += x[i] * x[i];
 	}
@@ -279,6 +279,8 @@ Mat &apply(Mat &dst, const Mat &src, double fun(double))
 
 	const double *x = src.ptr<double>(0);
 	double *y = dst.ptr<double>(0);
+
+#pragma omp parallel for
 	for (int i = 0; i < n; i++)
 		y[i] = fun(x[i]);
 	return dst;
@@ -323,6 +325,7 @@ Mat computeActivation(const Mat &input)
 	avec[0] = 1.0f;
 	avec++;
 
+#pragma omp parallel for
 	for (int i = 0; i < size.height - 1; i++) {
 		avec[i] = 1.0 / (1.0 + std::exp(-(zvec[i])));
 	}
