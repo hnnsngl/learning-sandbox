@@ -1,9 +1,9 @@
-CXXFLAGS=-std=c++11 -fopenmp -O3 -DNDEBUG
-CXXFLAGS_DEBUG=-std=c++11 -fopenmp -g -DDEBUG
+CXXFLAGS=-std=c++11 -fopenmp -O3 -DNDEBUG $$(pkg-config --cflags opencv)
+CXXFLAGS_DEBUG=-std=c++11 -fopenmp -g -DDEBUG $$(pkg-config --cflags opencv)
 
-LDFLAGS=$$(pkg-config --cflags --libs opencv)
+LDFLAGS=$$(pkg-config --libs opencv) -L/usr/lib/x86_64-linux-gnu/ -lboost_program_options
 
-BINARIES=mnist-static
+BINARIES=mnist-static mnist-flex
 BINARIES_DEBUG=$(BINARIES:=-debug)
 
 CPP_FILES=$(shell ls *cpp)
@@ -29,11 +29,19 @@ include $(DEP_FILES)
 
 # build targets
 
+%-debug: CXXFLAGS=$(CXXFLAGS_DEBUG)
+
 mnist-static: mnist-static.o loadweights.o
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
 
 mnist-static-debug: mnist-static-debug.o loadweights.o
-	$(CXX) -o $@ $(CXXFLAGS_DEBUG) $^ $(LDFLAGS)
+	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
+
+mnist-flex: mnist-flex.o loadweights.o
+	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
+
+mnist-flex-debug: mnist-flex-debug.o loadweights.o
+	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
 
 # implicit rules
 
@@ -41,7 +49,12 @@ mnist-static-debug: mnist-static-debug.o loadweights.o
 	$(CXX) -MM $(CXXFLAGS) $*.cpp > $*.d
 
 %.o: %.cpp %.d
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -o $@ $< $(LDFLAGS)
+
+%-debug.o: %.cpp %.d
+	$(CXX) -c $(CXXFLAGS_DEBUG) -o $@ $< $(LDFLAGS)
+
+
 
 
 
