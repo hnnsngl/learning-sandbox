@@ -53,7 +53,6 @@ std::vector<cv::Mat> loadWeightsMat(std::string filename)
 		const int ncols = matrix[0].size(); assert(ncols > 0);
 
 		cv::Mat mat = cv::Mat::zeros(nrows, ncols, CV_64F);
-		std::cerr << "DEBUG\t" << nrows << " X " << ncols << " -- " << mat.t().size() << "DEBUG\n";
 		            
 		for (int row = 0; row < nrows; row++) {
 			assert(matrix[row].size() == ncols);
