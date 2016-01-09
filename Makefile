@@ -43,10 +43,10 @@ mnist-static: mnist-static.o loadweights.o
 mnist-static-debug: mnist-static-debug.o loadweights.o
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
 
-mnist-flex: mnist-flex.o loadweights.o
+mnist-flex: mnist-flex.o loadweights.o options.o
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
 
-mnist-flex-debug: mnist-flex-debug.o loadweights.o
+mnist-flex-debug: mnist-flex-debug.o loadweights.o options.o
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
 
 # implicit rules

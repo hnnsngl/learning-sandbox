@@ -49,6 +49,8 @@ constexpr bool debug_output = false;
 int main(int argc, char **argv)
 {
 	Options options;
+	options.layers = {300, 100};
+	options.prefix = "mnist";
 	if (not options.parse(argc, argv)) return 1;
 	
 	// optimization parameters
@@ -60,8 +62,8 @@ int main(int argc, char **argv)
 
 	// mini-batch parameters
 	int count = (options.count > 0) ? options.count : trainingSet.size;
-	int batch = (options.batch > 0) ? options.batch : trainingSet.size / 10;
-	int loops = (options.loops > 0) ? options.loops : 10;
+	int batch = (options.batch > 0) ? options.batch : trainingSet.size;
+	int loops = (options.loops > 0) ? options.loops : 20;
 
 	// fix network architecture: input layer, hidden layer(s),
 	// output layer
@@ -69,13 +71,6 @@ int main(int argc, char **argv)
 	const int output_size = 10;
 	std::vector<int> architecture({input_size, output_size});
 	architecture.insert(architecture.begin()+1, options.layers.begin(), options.layers.end());
-
-	// base output filename
-	std::stringstream sname;
-	sname << "mnist-" << architecture[0];
-	for (int i = 1; i < architecture.size(); i++)
-		sname << "x" << architecture[i];
-	std::string basename = sname.str();
 
 	std::cout << "# alpha = " << alpha << "\n# lambda = " << lambda << "\n# epsilon = " << epsilon
 	          << "\n# count = " << count << "\n# batch = " << batch << "\n# loops = " << loops << "\n\n"
@@ -87,7 +82,7 @@ int main(int argc, char **argv)
 	// architecture, so that
 	//
 	// Z_(i+1) = W_i) * A_i
-	std::vector<Mat> weights = loadWeightsMat(basename + "-weights");
+	std::vector<Mat> weights = loadWeightsMat(options.basename + "-weights");
 	for (int i = 1; i < architecture.size(); i++) {
 		cv::Size size = cv::Size(architecture[i - 1] + 1, architecture[i]);
 		
@@ -199,12 +194,12 @@ int main(int argc, char **argv)
 
 	if (loops > 0) {
 		// store weights
-		std::ofstream osweights(basename + "-weights");
+		std::ofstream osweights(options.basename + "-weights");
 		for (int i = 0; i < architecture.size() - 1; i++)
 			osweights << weights[i] << std::endl;
 
 		// store cost function values
-		std::ofstream oscosts(basename + "-costs");
+		std::ofstream oscosts(options.basename + "-costs");
 		for (int i = 0; i < Jseries.size(); i++)
 			oscosts << i << "\t" << Jseries[i] << "\n";
 	}
@@ -247,7 +242,7 @@ int main(int argc, char **argv)
 	          << static_cast<double>(correct) / testset.size << "\n# Total classification error: "
 	          << static_cast<double>(testset.size - correct) / testset.size  << std::endl;
 
-	std::ofstream osconfidence(basename + "-confidence");
+	std::ofstream osconfidence(options.basename + "-confidence");
 	osconfidence << "# row: label, column: estimate\n" << stats / testset.size << std::endl;
 
 	std::string title = "classification errors";
