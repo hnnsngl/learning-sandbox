@@ -77,13 +77,11 @@ int main(int argc, char **argv)
 		sname << "x" << architecture[i];
 	std::string basename = sname.str();
 
-	std::ofstream ossummary(basename + "-summary");
 	std::cout << "# alpha = " << alpha << "\n# lambda = " << lambda << "\n# epsilon = " << epsilon
 	          << "\n# count = " << count << "\n# batch = " << batch << "\n# loops = " << loops << "\n\n"
 	          << "# NN Architecture: \n" << architecture[0];
-	for (int i = 1; i < architecture.size(); i++)
-		ossummary << " --> " << architecture[i];
-	ossummary << "\n\n";
+	for (int l=1; l<architecture.size() l++) std::cout << architecture[l];
+	std::cout << "\n";
 
 	// prepare and initialize weight matrices W_i for given
 	// architecture, so that
@@ -155,6 +153,8 @@ int main(int argc, char **argv)
 			}
 		}
 
+		J /= batch;
+		
 		// add regularization term to gradient:
 		// if (lambda != 0) {  R1 = Theta1 .* (lambda / m);
 		//     R1 = Theta1 .* (lambda / m);
@@ -176,24 +176,21 @@ int main(int argc, char **argv)
 			Jreg += sqrsum(weights[l]);
 			weights[l] -= alpha * grad[l];
 		}
-
 		Jreg *= lambda / (2 * batch);
-		J /= batch;
+		double Jtot = J + Jreg;
 
-		ossummary << nb << "\tJ = " << J << " + " << Jreg << " = " << J + Jreg << std::endl;
-		std::cout << nb << "\tJ = " << J << " + " << Jreg << " = " << J + Jreg << std::endl;
+		std::cout << nb << "\tJ = " << J << " + " << Jreg << " = " << Jtot << std::endl;
 
-		J += Jreg;
-		Jseries.push_back(J);
+		Jseries.push_back(Jtot);
 		
 		int wndSize = count / batch;
-		double JWndMean = J;
+		double JWndMean = Jtot;
 		if (Jseries.size() > wndSize) {
 			JWndMean = std::accumulate(Jseries.rbegin(), Jseries.rbegin() + wndSize, 0.0) / wndSize;
 		}
-		if (J > JWndMean) {
+		if (Jtot > JWndMean) {
 			alpha = alpha * 0.9;
-			ossummary << nb << "\tJ = " << J << "\talpha --> " << alpha << "\n";
+			std::cout << nb << "\tJ = " << Jtot << "\talpha --> " << alpha << "\n";
 		}
 		if (alpha < 1e-14) {
 			break;
@@ -246,14 +243,12 @@ int main(int argc, char **argv)
 		}
 	}
 
-	ossummary << "# Total correct: " << correct << " / " << testset.size << " = "
-	               << static_cast<double>(correct) / testset.size << std::endl;
-
 	std::cout << "# Total correct: " << correct << " / " << testset.size << " = "
 	          << static_cast<double>(correct) / testset.size << "\n# Total classification error: "
 	          << static_cast<double>(testset.size - correct) / testset.size  << std::endl;
 
-	ossummary << "# row: label, column: estimate\n" << stats / testset.size << std::endl;
+	std::ofstream osconfidence(basename + "-confidence");
+	osconfidence << "# row: label, column: estimate\n" << stats / testset.size << std::endl;
 
 	std::string title = "classification errors";
 	cv::namedWindow(title);
