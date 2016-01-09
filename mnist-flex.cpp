@@ -73,10 +73,11 @@ int main(int argc, char **argv)
 	architecture.insert(architecture.begin()+1, options.layers.begin(), options.layers.end());
 
 	std::cout << "# alpha = " << alpha << "\n# lambda = " << lambda << "\n# epsilon = " << epsilon
-	          << "\n# count = " << count << "\n# batch = " << batch << "\n# loops = " << loops << "\n\n"
+	          << "\n# count = " << count << "\n# batch = " << batch << "\n# loops = " << loops << "\n"
+	          << "# base name: " << options.basename << "\n"
 	          << "# NN Architecture: " << architecture[0];
 	for (int l=1; l<architecture.size(); l++) std::cout << " x " << architecture[l];
-	std::cout << "\n";
+	std::cout << "\n\n";
 
 	// prepare and initialize weight matrices W_i for given
 	// architecture, so that
@@ -87,7 +88,7 @@ int main(int argc, char **argv)
 		cv::Size size = cv::Size(architecture[i - 1] + 1, architecture[i]);
 		
 		if ((weights.size() >= i) and weights[i-1].size() == size) {
-			std::cerr << "Loaded Weight Matrix[" << i << "] " << weights[i-1].t().size() << std::endl;
+			std::cerr << "# Loaded Weight Matrix[" << i << "] " << weights[i-1].t().size() << std::endl;
 		} else {
 			Mat weight(size, CV_64F);
 			cv::randu(weight, cv::Scalar::all(-epsilon), cv::Scalar::all(epsilon));
