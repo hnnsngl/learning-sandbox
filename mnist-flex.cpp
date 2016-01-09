@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 	std::cout << "# alpha = " << alpha << "\n# lambda = " << lambda << "\n# epsilon = " << epsilon
 	          << "\n# count = " << count << "\n# batch = " << batch << "\n# loops = " << loops << "\n\n"
 	          << "# NN Architecture: \n" << architecture[0];
-	for (int l=1; l<architecture.size() l++) std::cout << architecture[l];
+	for (int l=1; l<architecture.size(); l++) std::cout << architecture[l];
 	std::cout << "\n";
 
 	// prepare and initialize weight matrices W_i for given
