@@ -94,8 +94,7 @@ int main(int argc, char **argv)
 		cv::Size size = cv::Size(architecture[i - 1] + 1, architecture[i]);
 		
 		if ((weights.size() >= i) and weights[i-1].size() == size) {
-			std::cerr << "Loaded Weight Matrix[" << i << "] " << weights[i-1].t().size()
-			          << "\tWeight sum " << i << " = " << cv::sum(weights[i-1]) << std::endl;
+			std::cerr << "Loaded Weight Matrix[" << i << "] " << weights[i-1].t().size() << std::endl;
 		} else {
 			Mat weight(size, CV_64F);
 			cv::randu(weight, cv::Scalar::all(-epsilon), cv::Scalar::all(epsilon));
@@ -204,10 +203,8 @@ int main(int argc, char **argv)
 	if (loops > 0) {
 		// store weights
 		std::ofstream osweights(basename + "-weights");
-		for (int i = 0; i < architecture.size() - 1; i++) {
+		for (int i = 0; i < architecture.size() - 1; i++)
 			osweights << weights[i] << std::endl;
-			ossummary << "Storing weights " << i << " Sum = " << cv::sum(weights[i]) << std::endl;
-		}
 
 		// store cost function values
 		std::ofstream oscosts(basename + "-costs");
