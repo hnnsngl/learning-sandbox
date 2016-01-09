@@ -1,5 +1,11 @@
-CXXFLAGS=-std=c++11 -fopenmp -O3 -DNDEBUG $$(pkg-config --cflags opencv)
-CXXFLAGS_DEBUG=-std=c++11 -fopenmp -g -DDEBUG $$(pkg-config --cflags opencv)
+ifeq ($(CXX), icc)
+OPENMP+=-qopenmp
+else
+OPENMP+=-fopenmp
+endif
+
+CXXFLAGS=-std=c++11 -O3 $(OPENMP) -DNDEBUG $$(pkg-config --cflags opencv)
+CXXFLAGS_DEBUG=-std=c++11 $(OPENMP) -g -DDEBUG $$(pkg-config --cflags opencv)
 
 LDFLAGS=$$(pkg-config --libs opencv) -L/usr/lib/x86_64-linux-gnu/ -lboost_program_options
 
