@@ -4,3 +4,5 @@ mnist-static
 /mnist-static-debug
 MNIST
 CIFAR-10
+*.d
+*.o
