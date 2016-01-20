@@ -30,7 +30,7 @@ cv::Mat montageList(const Dataset &dataset, const std::vector<std::pair<int, int
 
 	Mat mat = Mat::ones((count / tiles_per_row + 1) * height, tiles_per_row * width, type);
 
-	for (int i = 0; i < list.size(); i++) {
+	for (size_t i = 0; i < list.size(); i++) {
 		int x = (i % tiles_per_row) * width;
 		int y = (i / tiles_per_row) * height;
 		int id = list[i].first;

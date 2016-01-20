@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 	// base output filename
 	std::stringstream sname;
 	sname << "mnist-" << architecture[0];
-	for (int i = 1; i < architecture.size(); i++)
+	for (size_t i = 1; i < architecture.size(); i++)
 		sname << "x" << architecture[i];
 	std::string basename = sname.str();
 
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 	          << "\n# epsilon = " << epsilon << "\n# count = " << count
 	          << "\n# batch = " << batch << "\n# loops = " << loops << "\n\n"
 	          << "# NN Architecture: " << architecture[0];
-	for (int i = 1; i < architecture.size(); i++)
+	for (size_t i = 1; i < architecture.size(); i++)
 		ossummary << " --> " << architecture[i];
 	ossummary << "\n\n";
 
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 	//
 	// Z_(i+1) = W_i) * A_i
 	std::vector<Mat> weights = loadWeightsMat(basename + "-weights");
-	for (int i = 1; i < architecture.size(); i++) {
+	for (size_t i = 1; i < architecture.size(); i++) {
 		cv::Size size = cv::Size(architecture[i - 1] + 1, architecture[i]);
 
 		if ((weights.size() >= i) and weights[i - 1].size() == size) {
@@ -197,7 +197,7 @@ int main(int argc, char **argv)
 		J += Jreg;
 		Jseries.push_back(J);
 
-		int wndSize = count / batch;
+		size_t wndSize = count / batch;
 		double JWndMean = J;
 		if (Jseries.size() > wndSize) {
 			JWndMean =
@@ -215,7 +215,7 @@ int main(int argc, char **argv)
 
 	// store weights
 	std::ofstream osweights(basename + "-weights");
-	for (int i = 0; i < architecture.size() - 1; i++) {
+	for (size_t i = 0; i < architecture.size() - 1; i++) {
 		osweights << weights[i] << std::endl;
 		ossummary << "Storing weights " << i << " Sum = " << cv::sum(weights[i])
 		          << std::endl;
@@ -223,7 +223,7 @@ int main(int argc, char **argv)
 
 	// store cost function values
 	std::ofstream oscosts(basename + "-costs");
-	for (int i = 0; i < Jseries.size(); i++)
+	for (size_t i = 0; i < Jseries.size(); i++)
 		oscosts << i << "\t" << Jseries[i] << "\n";
 
 	// start testing

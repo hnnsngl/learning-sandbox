@@ -71,8 +71,8 @@ bool DatasetMNIST::loadLabels(std::string filename)
 	std::ifstream ifs(filename, std::ios::binary);
 	ifs.seekg(0);
 
-	uint32_t magic = readuint32BE(ifs);
-	uint32_t count = readuint32BE(ifs);
+	int32_t magic = readuint32BE(ifs);
+	int32_t count = readuint32BE(ifs);
 
 	if (not ifs.good()) {
 		std::cerr << "(loadLabels) ERROR cannot open file: " << filename << std::endl;
@@ -153,7 +153,7 @@ bool DatasetMNIST::loadImages(std::string filename)
 
 void DatasetMNIST::showImage(int i) const
 {
-	int label = labels[i];
+	size_t label = labels[i];
 	std::string name = (names.size() > label) ? " " + names[i] : "";
 	std::cerr << label << name << std::endl;
 
