@@ -21,25 +21,25 @@ struct DatasetMNIST
 	typedef std::vector<uint8_t> Pixels;
 	typedef std::vector<Pixels> Images;
 
-public:
+      public:
 	// construct from MNIST data files
 	DatasetMNIST(std::string filenameImages, std::string filenameLabels);
 
 	std::vector<uint8_t> labels;
 	std::vector<cv::Mat> images;
 	std::vector<std::string> names;
-	
+
 	int imgRows;
 	int imgCols;
 	int imgSize;
 	const int imgDepth = 1;
 	int size = 0;
-	
+
 	bool loadLabels(std::string filename);
 	bool loadImages(std::string filename);
 
 	void showImage(int i) const;
-	
+
 	// helper to read int32 in Big Endian
 	uint32_t readuint32BE(std::ifstream &ifs) const;
 };
@@ -54,14 +54,14 @@ DatasetMNIST::DatasetMNIST(std::string filenameImages, std::string filenameLabel
 		std::cerr << "Failed to load Images" << std::endl;
 
 	if (labels.size() != images.size())
-		std::cerr << "WARNING: labels (" << labels.size() << ") and images (" << images.size()
-		          << ") counts differ" << std::endl;
+		std::cerr << "WARNING: labels (" << labels.size() << ") and images ("
+		          << images.size() << ") counts differ" << std::endl;
 }
 
 uint32_t DatasetMNIST::readuint32BE(std::ifstream &ifs) const
 {
 	uint8_t bytes[4];
-	ifs.read(reinterpret_cast<char*>(bytes), 4);
+	ifs.read(reinterpret_cast<char *>(bytes), 4);
 
 	return (uint32_t)((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3]);
 }
@@ -70,7 +70,7 @@ bool DatasetMNIST::loadLabels(std::string filename)
 {
 	std::ifstream ifs(filename, std::ios::binary);
 	ifs.seekg(0);
-		
+
 	uint32_t magic = readuint32BE(ifs);
 	uint32_t count = readuint32BE(ifs);
 
@@ -80,16 +80,18 @@ bool DatasetMNIST::loadLabels(std::string filename)
 	}
 
 	if (magic != magic_MNISTlabels) {
-		std::cerr << "(loadLabels) ERROR invalid file magic (" << magic << "): " << filename << std::endl;
+		std::cerr << "(loadLabels) ERROR invalid file magic (" << magic << "): " << filename
+		          << std::endl;
 		return false;
 	}
 
-	std::cerr << "(loadLabels) INFO file " << filename << " contains " << count << " labels" << std::endl;
-	
+	std::cerr << "(loadLabels) INFO file " << filename << " contains " << count << " labels"
+	          << std::endl;
+
 	labels.clear();
 	labels.resize(count);
 
-	ifs.read(reinterpret_cast<char*>(labels.data()), count);
+	ifs.read(reinterpret_cast<char *>(labels.data()), count);
 
 	return true;
 }
@@ -106,7 +108,7 @@ bool DatasetMNIST::loadImages(std::string filename)
 
 	int32_t magic = readuint32BE(ifs);
 	int32_t count = readuint32BE(ifs);
-	int32_t nrows = readuint32BE(ifs); 
+	int32_t nrows = readuint32BE(ifs);
 	int32_t ncols = readuint32BE(ifs);
 
 	imgRows = nrows;
@@ -114,7 +116,8 @@ bool DatasetMNIST::loadImages(std::string filename)
 	imgSize = nrows * ncols;
 
 	if (magic != magic_MNISTimages) {
-		std::cerr << "(loadImages ERROR invalid file magic (" << magic << "): " << filename << std::endl;
+		std::cerr << "(loadImages ERROR invalid file magic (" << magic << "): " << filename
+		          << std::endl;
 		return false;
 	}
 
@@ -124,15 +127,15 @@ bool DatasetMNIST::loadImages(std::string filename)
 		return false;
 	}
 
-	std::cerr << "(loadImages) INFO file " << filename << " contains " << count << " (" << nrows << " x "
-	          << ncols << ") images" << std::endl;
+	std::cerr << "(loadImages) INFO file " << filename << " contains " << count << " (" << nrows
+	          << " x " << ncols << ") images" << std::endl;
 
 	images.clear();
 	images.reserve(count);
 
 	char buffer[imgSize];
-	for (int32_t i=0; i<count; i++) {
-		Pixels pixels(nrows*ncols, 0);
+	for (int32_t i = 0; i < count; i++) {
+		Pixels pixels(nrows * ncols, 0);
 		ifs.read(buffer, imgSize);
 		cv::Mat img(cv::Size(imgRows, imgCols), CV_8U, buffer, cv::Mat::AUTO_STEP);
 		img.convertTo(img, CV_64F);
@@ -141,8 +144,9 @@ bool DatasetMNIST::loadImages(std::string filename)
 	}
 
 	size = images.size();
-	
-	std::cerr << "loaded " << images.size() << " images " << cv::Size(imgRows, imgCols) << std::endl;
+
+	std::cerr << "loaded " << images.size() << " images " << cv::Size(imgRows, imgCols)
+	          << std::endl;
 
 	return true;
 }

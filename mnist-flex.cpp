@@ -33,10 +33,9 @@ Mat computeActivation(const Mat &input);
 // same as computeActivation without adding the bias unit
 Mat computeOutputVector(const Mat &input) { return apply(&sigmoid, input); }
 
-int getClassification(const Mat& activation);
+int getClassification(const Mat &activation);
 
 std::vector<Mat> makeTeachingVectors(int size);
-
 
 #if defined DEBUG
 constexpr bool debug_output = true;
@@ -44,20 +43,24 @@ constexpr bool debug_output = true;
 constexpr bool debug_output = false;
 #endif
 
-#define debuglog if(not debug_output) {} else std::cerr
+#define debuglog                                                                                   \
+	if (not debug_output) {                                                                    \
+	} else                                                                                     \
+	std::cerr
 
 int main(int argc, char **argv)
 {
 	Options options;
 	options.layers = {300, 100};
 	options.prefix = "mnist";
-	if (not options.parse(argc, argv)) return 1;
-	
+	if (not options.parse(argc, argv))
+		return 1;
+
 	// optimization parameters
 	double alpha = options.alpha;
 	double lambda = options.lambda;
 	double epsilon = options.epsilon;
-	
+
 	DatasetMNIST trainingSet("MNIST/train-images-idx3-ubyte", "MNIST/train-labels-idx1-ubyte");
 
 	// mini-batch parameters
@@ -70,12 +73,14 @@ int main(int argc, char **argv)
 	const int input_size = trainingSet.imgSize * trainingSet.imgDepth;
 	const int output_size = 10;
 	std::vector<int> architecture({input_size, output_size});
-	architecture.insert(architecture.begin()+1, options.layers.begin(), options.layers.end());
+	architecture.insert(architecture.begin() + 1, options.layers.begin(), options.layers.end());
 
-	std::cout << "# alpha = " << alpha << "\n# lambda = " << lambda << "\n# epsilon = " << epsilon
-	          << "\n# count = " << count << "\n# batch = " << batch << "\n# loops = " << loops << "\n\n"
+	std::cout << "# alpha = " << alpha << "\n# lambda = " << lambda
+	          << "\n# epsilon = " << epsilon << "\n# count = " << count
+	          << "\n# batch = " << batch << "\n# loops = " << loops << "\n\n"
 	          << "# NN Architecture: " << architecture[0];
-	for (int l=1; l<architecture.size(); l++) std::cout << " x " << architecture[l];
+	for (int l = 1; l < architecture.size(); l++)
+		std::cout << " x " << architecture[l];
 	std::cout << "\n";
 
 	// prepare and initialize weight matrices W_i for given
@@ -85,14 +90,16 @@ int main(int argc, char **argv)
 	std::vector<Mat> weights = loadWeightsMat(options.basename + "-weights");
 	for (int i = 1; i < architecture.size(); i++) {
 		cv::Size size = cv::Size(architecture[i - 1] + 1, architecture[i]);
-		
-		if ((weights.size() >= i) and weights[i-1].size() == size) {
-			std::cerr << "Loaded Weight Matrix[" << i << "] " << weights[i-1].t().size() << std::endl;
+
+		if ((weights.size() >= i) and weights[i - 1].size() == size) {
+			std::cerr << "Loaded Weight Matrix[" << i << "] "
+			          << weights[i - 1].t().size() << std::endl;
 		} else {
 			Mat weight(size, CV_64F);
 			cv::randu(weight, cv::Scalar::all(-epsilon), cv::Scalar::all(epsilon));
 			weights.push_back(weight);
-			std::cerr << "Initial Weight Matrix[" << i << "] " << weight.t().size() << std::endl;
+			std::cerr << "Initial Weight Matrix[" << i << "] " << weight.t().size()
+			          << std::endl;
 		}
 	}
 
@@ -109,7 +116,7 @@ int main(int argc, char **argv)
 		const int last = architecture.size() - 1;
 
 		// prepare weight gradients
-		std::vector<Mat> grad(last);  // cost gradients for weights
+		std::vector<Mat> grad(last); // cost gradients for weights
 		for (int l = 0; l < last; l++)
 			grad[l] = Mat::zeros(weights[l].size(), weights[l].type());
 
@@ -131,25 +138,28 @@ int main(int argc, char **argv)
 			}
 			A[last] = computeOutputVector(Z[last]);
 
-			// delta2 = (Theta2' * delta3)(2:hidden_layer_size+1) .* sigmoidGradient(Z2);
+			// delta2 = (Theta2' * delta3)(2:hidden_layer_size+1) .*
+			// sigmoidGradient(Z2);
 			int label = trainingSet.labels[id];
 
 			D[last] = A[last] - yk[label];
-			for (int l = last - 1; l>0; --l) {
-				D[l] = (weights[l].t() * D[l+1])(cv::Rect(0, 1, 1, architecture[l]));
+			for (int l = last - 1; l > 0; --l) {
+				D[l] =
+				    (weights[l].t() * D[l + 1])(cv::Rect(0, 1, 1, architecture[l]));
 				D[l] = D[l].mul(apply(Z[l], Z[l], &sigmoidGrad));
 			}
 #pragma omp critical
 			{
 				// J = J + sum(-yk.*log(A3) - (1 - yk).*(log(1 - A3))) / m;
-				J +=
-				    cv::sum(-1.0 * yk[label].mul(log(A[last])) - (1.0 - yk[label]).mul(log(1.0 - A[last])))[0];
-				for (int l=0; l<last; l++) grad[l] += D[l+1] * A[l].t();
+				J += cv::sum(-1.0 * yk[label].mul(log(A[last])) -
+				             (1.0 - yk[label]).mul(log(1.0 - A[last])))[0];
+				for (int l = 0; l < last; l++)
+					grad[l] += D[l + 1] * A[l].t();
 			}
 		}
 
 		J /= batch;
-		
+
 		// add regularization term to gradient:
 		// if (lambda != 0) {  R1 = Theta1 .* (lambda / m);
 		//     R1 = Theta1 .* (lambda / m);
@@ -163,9 +173,10 @@ int main(int argc, char **argv)
 		// std::cerr << "\nRegularization";
 		std::vector<Mat> R(last);
 		double Jreg = 0;
-		for (int l=0; l<last; l++) {
+		for (int l = 0; l < last; l++) {
 			R[l] = weights[l] * (lambda / batch);
-			R[0](cv::Rect(0, 0, 1, architecture[l+1])) = Mat::zeros(1, architecture[l+1], CV_64F);
+			R[0](cv::Rect(0, 0, 1, architecture[l + 1])) =
+			    Mat::zeros(1, architecture[l + 1], CV_64F);
 			grad[l] = grad[l] / batch + R[l];
 
 			Jreg += sqrsum(weights[l]);
@@ -177,11 +188,13 @@ int main(int argc, char **argv)
 		std::cout << nb << "\tJ = " << J << " + " << Jreg << " = " << Jtot << std::endl;
 
 		Jseries.push_back(Jtot);
-		
+
 		int wndSize = count / batch;
 		double JWndMean = Jtot;
 		if (Jseries.size() > wndSize) {
-			JWndMean = std::accumulate(Jseries.rbegin(), Jseries.rbegin() + wndSize, 0.0) / wndSize;
+			JWndMean =
+			    std::accumulate(Jseries.rbegin(), Jseries.rbegin() + wndSize, 0.0) /
+			    wndSize;
 		}
 		if (Jtot > JWndMean) {
 			alpha = alpha * 0.9;
@@ -208,26 +221,27 @@ int main(int argc, char **argv)
 	DatasetMNIST testset("MNIST/t10k-images-idx3-ubyte", "MNIST/t10k-labels-idx1-ubyte");
 	int correct = 0;
 	Mat stats = Mat::eye(10, 10, CV_64F);
-	std::vector<std::pair<int,int> > errors; // image ids of wrong guesses
+	std::vector<std::pair<int, int>> errors; // image ids of wrong guesses
 
 	std::vector<Mat> Z(architecture.size());
 	std::vector<Mat> A(architecture.size());
-	
+
 	for (int id = 0; id < testset.size; id++) {
-		int last = architecture.size() - 1; // index of the last layer in the weight, input and activation vectors
+		int last = architecture.size() -
+		           1; // index of the last layer in the weight, input and activation vectors
 		// feed forward and check
-		for (int l=0; l < last; l++) {
+		for (int l = 0; l < last; l++) {
 			if (l == 0)
 				A[l] = computeInputVector(testset.images[id]);
 			else
 				A[l] = computeActivation(Z[l]);
-			Z[l+1] = weights[l] * A[l];
+			Z[l + 1] = weights[l] * A[l];
 		}
 		A[last] = computeOutputVector(Z[last]);
 
 		// find classification
 		int classification = getClassification(A[last]);
-		
+
 		int label = testset.labels[id];
 		stats += yk[label] * A[last].t();
 
@@ -239,8 +253,9 @@ int main(int argc, char **argv)
 	}
 
 	std::cout << "# Total correct: " << correct << " / " << testset.size << " = "
-	          << static_cast<double>(correct) / testset.size << "\n# Total classification error: "
-	          << static_cast<double>(testset.size - correct) / testset.size  << std::endl;
+	          << static_cast<double>(correct) / testset.size
+	          << "\n# Total classification error: "
+	          << static_cast<double>(testset.size - correct) / testset.size << std::endl;
 
 	std::ofstream osconfidence(options.basename + "-confidence");
 	osconfidence << "# row: label, column: estimate\n" << stats / testset.size << std::endl;
@@ -249,9 +264,9 @@ int main(int argc, char **argv)
 	cv::namedWindow(title);
 	Mat display = montageList(testset, errors);
 	cv::imshow(title, display);
-	while (cv::waitKey(0) != 27);
+	while (cv::waitKey(0) != 27)
+		;
 }
-
 
 double sqrsum(const Mat &src)
 {
@@ -259,7 +274,7 @@ double sqrsum(const Mat &src)
 	const double *x = src.ptr<double>(0);
 	cv::Size size = src.size();
 	double sum = 0;
-#pragma omp parallel for reduction(+:sum)
+#pragma omp parallel for reduction(+ : sum)
 	for (int i = 0; i < size.width * size.height; i++) {
 		sum += x[i] * x[i];
 	}
@@ -328,7 +343,8 @@ Mat computeActivation(const Mat &input)
 	return result;
 }
 
-int getClassification(const Mat& activation) {
+int getClassification(const Mat &activation)
+{
 	int idmax[2];
 	double max;
 	minMaxIdx(activation, 0, &max, 0, idmax);
@@ -347,11 +363,10 @@ std::vector<Mat> makeTeachingVectors(int size)
 
 #if defined DEBUG
 	for (int k = 0; k < size; k++)
-		std::cerr << "k = " << k << " --> yk'" << yk[k].size() << " = " << yk[k].t() << "\t y" << k << "(" << k
-		          << ") = " << yk[k].at<double>(0, k) << "\n";
+		std::cerr << "k = " << k << " --> yk'" << yk[k].size() << " = " << yk[k].t()
+		          << "\t y" << k << "(" << k << ") = " << yk[k].at<double>(0, k) << "\n";
 	cv::waitKey(-1);
 #endif
 
 	return yk;
 }
-

@@ -40,7 +40,7 @@ struct DatasetCIFAR10
 	std::vector<uint8_t> labels;
 	std::vector<Mat> images;
 	std::vector<std::string> names;
-	
+
 	bool loadBatch(std::string filename);
 	bool loadNames(std::string filename);
 
@@ -49,7 +49,8 @@ struct DatasetCIFAR10
 	void clear();
 };
 
-void DatasetCIFAR10::clear(){
+void DatasetCIFAR10::clear()
+{
 	labels.clear();
 	images.clear();
 }
@@ -67,19 +68,20 @@ bool DatasetCIFAR10::loadBatch(std::string filename)
 		char lbl = 0;
 		ifs.read(&lbl, 1);
 		char buffer[imgSize * 3];
-		ifs.read(buffer, imgSize*3);
-		if (ifs.eof()) break;
+		ifs.read(buffer, imgSize * 3);
+		if (ifs.eof())
+			break;
 		// load channels, convert to float, normalize
-		cv::Size size(imgRows,imgCols);
-		std::vector<Mat> mats( {Mat(size, CV_8UC1, buffer, Mat::AUTO_STEP),
-					Mat(size, CV_8UC1, buffer+imgSize, Mat::AUTO_STEP),
-					Mat(size, CV_8UC1, buffer+2*imgSize, Mat::AUTO_STEP)} );
+		cv::Size size(imgRows, imgCols);
+		std::vector<Mat> mats({Mat(size, CV_8UC1, buffer, Mat::AUTO_STEP),
+		                       Mat(size, CV_8UC1, buffer + imgSize, Mat::AUTO_STEP),
+		                       Mat(size, CV_8UC1, buffer + 2 * imgSize, Mat::AUTO_STEP)});
 		Mat img(size, CV_8UC3);
 		cv::merge(mats, img);
 		img.convertTo(img, CV_64FC3);
 		img = img / 255.0;
 		img = img.reshape(1, imgRows);
-		
+
 		labels.push_back(lbl);
 		images.push_back(img);
 	}
@@ -90,12 +92,14 @@ bool DatasetCIFAR10::loadBatch(std::string filename)
 bool DatasetCIFAR10::loadNames(std::string filename)
 {
 	std::ifstream ifs(filename);
-	if (not ifs.good()) return false;
-	
+	if (not ifs.good())
+		return false;
+
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
-		if (ifs.good()) names.push_back(line);
+		if (ifs.good())
+			names.push_back(line);
 	}
 	return true;
 }
@@ -111,7 +115,7 @@ void DatasetCIFAR10::showImage(int i) const
 
 void DatasetCIFAR10::showBatch(int delay) const
 {
-	for (int i=0; i<images.size(); i++) {
+	for (int i = 0; i < images.size(); i++) {
 		showImage(i);
 		cv::waitKey(delay);
 	}
