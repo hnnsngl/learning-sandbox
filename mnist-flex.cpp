@@ -22,8 +22,8 @@ Mat apply(double fun(double), const Mat &mat);
 
 double sqrsum(const Mat &src);
 
-double sigmoid(double x) { return 1.0f / (1.0f + std::exp(-x)); }
-double sigmoidGrad(double x) { return std::exp(-x) * std::pow(1.0f + std::exp(-x), -2.0f); }
+double sigmoid(double x) { return 1.0 / (1.0 + std::exp(-x)); }
+double sigmoidGrad(double x) { return std::exp(-x) * std::pow(1.0 + std::exp(-x), -2.0); }
 
 Mat log(const Mat &mat) { return apply(&std::log, mat); }
 
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 			{
 				// J = J + sum(-yk.*log(A3) - (1 - yk).*(log(1 - A3))) / m;
 				J +=
-				    cv::sum(-1.0f * yk[label].mul(log(A[last])) - (1.0f - yk[label]).mul(log(1.0f - A[last])))[0];
+				    cv::sum(-1.0 * yk[label].mul(log(A[last])) - (1.0 - yk[label]).mul(log(1.0 - A[last])))[0];
 				for (int l=0; l<last; l++) grad[l] += D[l+1] * A[l].t();
 			}
 		}
@@ -300,7 +300,7 @@ Mat computeInputVector(const Mat &img)
 
 	const double *in = input.ptr<double>(0);
 	double *out = result.ptr<double>(0);
-	out[0] = 1.0f;
+	out[0] = 1.0;
 	out++;
 	for (int i = 0; i < input.size().height; i++)
 		out[i] = in[i];
@@ -318,7 +318,7 @@ Mat computeActivation(const Mat &input)
 	assert(result.isContinuous());
 	const double *zvec = input.ptr<double>(0);
 	double *avec = result.ptr<double>(0);
-	avec[0] = 1.0f;
+	avec[0] = 1.0;
 	avec++;
 
 #pragma omp parallel for
@@ -341,7 +341,7 @@ std::vector<Mat> makeTeachingVectors(int size)
 	// use individual vectors
 	for (int i = 0; i < size; i++) {
 		Mat y = Mat::zeros(size, 1, CV_64F);
-		y.ptr<double>(0)[i] = 1.0f;
+		y.ptr<double>(0)[i] = 1.0;
 		yk.push_back(y);
 	}
 

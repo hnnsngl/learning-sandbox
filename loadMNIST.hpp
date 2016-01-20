@@ -136,7 +136,7 @@ bool DatasetMNIST::loadImages(std::string filename)
 		ifs.read(buffer, imgSize);
 		cv::Mat img(cv::Size(imgRows, imgCols), CV_8U, buffer, cv::Mat::AUTO_STEP);
 		img.convertTo(img, CV_64F);
-		img = img / 255.0f;
+		img = img / 255.0;
 		images.push_back(img);
 	}
 

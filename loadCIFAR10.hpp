@@ -77,7 +77,7 @@ bool DatasetCIFAR10::loadBatch(std::string filename)
 		Mat img(size, CV_8UC3);
 		cv::merge(mats, img);
 		img.convertTo(img, CV_64FC3);
-		img = img / 255.0f;
+		img = img / 255.0;
 		img = img.reshape(1, imgRows);
 		
 		labels.push_back(lbl);
