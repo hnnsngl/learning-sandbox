@@ -1,6 +1,7 @@
 #include "loadweights.hpp"
 
 #include <fstream>
+#include <string>
 
 #include <opencv2/core.hpp>
 
@@ -22,7 +23,7 @@ std::vector<std::vector<std::vector<double>>> loadWeights(std::string filename)
 		return weights;
 	}
 
-	std::string str(std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>());
+	std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
 	auto first = str.cbegin();
 
 	bool status = qi::phrase_parse(first, str.cend(), *('[' >> (double_ % ',' % ';') >> ']'),
