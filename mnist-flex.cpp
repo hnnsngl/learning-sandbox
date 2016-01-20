@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 		cv::Size size = cv::Size(architecture[i - 1] + 1, architecture[i]);
 
 		if ((weights.size() >= i) and weights[i - 1].size() == size) {
-			std::cerr << "Loaded Weight Matrix[" << i << "] "
+			std::cerr << "# Loaded Weight Matrix[" << i << "] "
 			          << weights[i - 1].t().size() << std::endl;
 		} else {
 			Mat weight(size, CV_64F);

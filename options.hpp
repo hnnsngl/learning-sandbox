@@ -15,7 +15,7 @@ struct Options
 	double alpha = 1.0;
 	double epsilon = 1.0;
 
-	std::string prefix = "nn";
+	std::string prefix = "sandbox";
 	std::string basename;
 	std::vector<int> layers = {};
 };

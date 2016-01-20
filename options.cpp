@@ -43,11 +43,12 @@ bool Options::parse(int argc, char **argv)
 	}
 
 	// construct file name base
-	std::stringstream base(prefix);
+	std::stringstream base;
 	if (layers.size() > 0)
-		base << "-" << layers[0];
+		base << prefix << "-" << layers[0];
 	for (int l = 1; l < layers.size(); l++)
 		base << "x" << layers[l];
+	basename = base.str();
 
 	return true;
 }
